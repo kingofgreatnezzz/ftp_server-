@@ -1,0 +1,9 @@
+/ftp_root
+/.env
+/node_modules
+ftp_root
+.DS_Store
+*.log
+/dist
+/coverage
+/tmp

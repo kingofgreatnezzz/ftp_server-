@@ -1,0 +1,4 @@
+pyftpdlib
+streamlit
+qrcode
+Pillow
