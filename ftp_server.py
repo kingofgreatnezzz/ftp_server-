@@ -11,13 +11,12 @@ os.makedirs(FTP_ROOT, exist_ok=True)
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('10.255.255.255', 1))
-        IP = s.getsockname()[0]
-    except Exception:
-        IP = '127.0.0.1'
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
     finally:
         s.close()
-    return IP
+    return ip
+
 
 def start_ftp_server():
     authorizer = DummyAuthorizer()
@@ -53,12 +52,53 @@ import io
 
 def run_streamlit():
     st.set_page_config(page_title="FTP File Manager")
+
     st.title("📂 FTP + Browser File Transfer")
+
+    # ---- HOW TO USE GUIDE ----
+    st.markdown("## 🧭 How to use this tool")
+
+    st.info(
+        """
+        **What this app does**
+        
+        This laptop is running an **FTP Server**.
+        Your phone connects to it and **downloads files**.
+        
+        ---
+        **STEP 1 – Put files to share**
+        - Copy the files you want to send into the folder:
+          📁 `ftp_root`
+        - Anything inside this folder is visible to your phone.
+        
+        ---
+        **STEP 2 – Connect from your phone**
+        - Open an FTP File Manager app on your phone
+          (Solid Explorer, CX File Explorer, etc.)
+        - Create a new FTP connection using:
+            - **Host:** Laptop IP shown below
+            - **Port:** 2121
+            - **Username:** user
+            - **Password:** 123
+        
+        ---
+        **STEP 3 – Download on phone**
+        - Browse the files shown from `ftp_root`
+        - Tap a file → Download
+        
+        ---
+        ⚠️ Important:
+        - Files are NOT pushed automatically
+        - The phone always downloads (pulls) the files
+        """
+    )
+
+    st.divider()
 
     ip = get_ip_address()
     ftp_url = f"ftp://user:123@{ip}:2121"
 
-    # Start FTP server ONCE
+    # ---- START FTP SERVER ONCE ----
     if "ftp_started" not in st.session_state:
         threading.Thread(target=start_ftp_server, daemon=True).start()
         st.session_state.ftp_started = True
@@ -67,7 +107,6 @@ def run_streamlit():
     st.code(ftp_url)
 
     # ---- QR CODE ----
-        # ---- QR CODE (FAST & COMPATIBLE) ----
     ftp_qr_text = f"ftp://{ip}:2121"
 
     qr = qrcode.QRCode(
@@ -115,6 +154,7 @@ def run_streamlit():
         if col3.button("🗑️", key=name):
             os.remove(path)
             st.experimental_rerun()
+
 
 # ===================== ENTRY POINT =====================
 if __name__ == "__main__":
